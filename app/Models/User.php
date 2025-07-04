@@ -18,9 +18,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
+        'name', 'email', 'password', 'role', 'photo',
     ];
 
     /**
@@ -44,5 +42,21 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+    
+    /**
+     * Relasi ke tabel reservations (riwayat reservasi user)
+     */
+    public function reservations()
+    {
+        return $this->hasMany(\App\Models\Reservation::class);
+    }
+
+    /**
+     * Relasi ke tabel messages (chat user)
+     */
+    public function messages()
+    {
+        return $this->hasMany(\App\Models\Message::class, 'user_id');
     }
 }
