@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Room;
+use App\Models\RoomType;
 
 class RoomController extends Controller
 {
@@ -14,39 +15,60 @@ class RoomController extends Controller
 
     public function create()
     {
-        return view('contoh.kamar.create');
+        $roomTypes = RoomType::all();
+        return view('contoh.kamar.create', compact('roomTypes'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'nama' => 'required',
-            'tipe' => 'required',
+            'room_type_id' => 'required|exists:room_types,id',
             'harga' => 'required|numeric',
             'status' => 'required|in:tersedia,terisi',
         ]);
-        Room::create($request->all());
+
+        Room::create([
+            'nama' => $request->nama,
+            'room_type_id' => $request->room_type_id,
+            'harga' => $request->harga,
+            'status' => $request->status,
+        ]);
+
         return redirect()->route('kamar.index')->with('success', 'Kamar berhasil ditambahkan');
     }
 
+
     public function edit($id)
     {
+
         $room = Room::findOrFail($id);
-        return view('contoh.kamar.edit', compact('room'));
+        $roomTypes = RoomType::all();
+        return view('contoh.kamar.edit', compact('room', 'roomTypes'));
+        
+
     }
 
     public function update(Request $request, $id)
     {
-        $room = Room::findOrFail($id);
         $request->validate([
             'nama' => 'required',
-            'tipe' => 'required',
+            'room_type_id' => 'required|exists:room_types,id',
             'harga' => 'required|numeric',
             'status' => 'required|in:tersedia,terisi',
         ]);
-        $room->update($request->all());
-        return redirect()->route('kamar.index')->with('success', 'Kamar berhasil diupdate');
+
+        $room = Room::findOrFail($id);
+        $room->update([
+            'nama' => $request->nama,
+            'room_type_id' => $request->room_type_id,
+            'harga' => $request->harga,
+            'status' => $request->status,
+        ]);
+
+        return redirect()->route('kamar.index')->with('success', 'Kamar berhasil diperbarui');
     }
+
 
     public function destroy($id)
     {
@@ -54,4 +76,9 @@ class RoomController extends Controller
         $room->delete();
         return redirect()->route('kamar.index')->with('success', 'Kamar berhasil dihapus');
     }
+    public function roomType()
+    {
+        return $this->belongsTo(RoomType::class);
+    }
+
 } 
